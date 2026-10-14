@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#6558f5" />
+  <title>Пішіндер зертханасы</title>
+  <style>
+    :root {
+      --bg: #f5f7ff;
+      --panel: #ffffff;
+      --ink: #1d2440;
+      --muted: #677291;
+      --line: #dfe5f6;
+      --purple: #6558f5;
+      --blue: #36a7ef;
+      --mint: #2ec6a6;
+      --soft: #f0efff;
+      --danger: #e75b7a;
+      --gold: #f7b955;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: var(--bg); color: var(--ink); }
+    body { min-height: 100vh; }
+    #app { max-width: 1300px; margin: 0 auto; padding: 20px; }
+    .hero {
+      background: linear-gradient(125deg, var(--purple), var(--blue) 60%, var(--mint));
+      color: white; border-radius: 24px; padding: 28px 22px; position: relative; overflow: hidden;
+      box-shadow: 0 12px 30px rgba(80, 88, 200, 0.22);
+    }
+    .hero:after {
+      content: "⬡ ◇ ○"; position: absolute; right: 40px; bottom: -16px; font-size: 88px; opacity: .18; letter-spacing: 8px;
+    }
+    .hero h1 { margin: 0 0 10px; font-size: clamp(2rem, 4vw, 3.2rem); letter-spacing: -0.05em; }
+    .hero p { margin: 0; max-width: 760px; line-height: 1.5; }
+    .tag { display: inline-block; background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.35); border-radius: 999px; padding: 7px 12px; font-size: .78rem; font-weight: 700; margin-bottom: 12px; }
+    .layout { display: grid; grid-template-columns: minmax(260px, 350px) minmax(0, 1fr); gap: 18px; margin-top: 20px; }
+    .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 18px; box-shadow: 0 8px 20px rgba(17, 26, 52, .04); }
+    h2, h3 { margin: 0 0 12px; }
+    label { display: block; margin: 10px 0 6px; font-weight: 700; font-size: .9rem; }
+    input, select, button { font: inherit; }
+    input, select {
+      width: 100%; background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 12px; padding: 11px 12px; min-height: 44px;
+    }
+    button {
+      border: 1px solid var(--line); background: var(--purple); color: white; border-radius: 12px; padding: 10px 12px; font-weight: 700; cursor: pointer;
+      min-height: 42px;
+    }
+    button.secondary { background: var(--soft); color: var(--ink); }
+    .segmented { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0; }
+    .segmented button.active { background: var(--purple); }
+    .segmented button { background: var(--soft); color: var(--ink); }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 10px; }
+    .metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 16px; }
+    .metric { background: var(--soft); border: 1px solid var(--line); border-radius: 16px; padding: 12px; }
+    .metric span { display: block; color: var(--muted); font-size: .75rem; }
+    .metric strong { display: block; margin-top: 6px; font-size: clamp(1.05rem,2vw,1.4rem); overflow-wrap: anywhere; }
+    .visuals { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .visualbox { border: 1px solid var(--line); border-radius: 16px; padding: 12px; background: #fff; }
+    .visualbox svg { width: 100%; height: 290px; display: block; }
+    .formula, .notice, .game-box {
+      background: var(--soft); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; margin-top: 12px; line-height: 1.5;
+    }
+    .formula { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .qr-box {
+      margin-top: 16px; display: grid; grid-template-columns: 120px 1fr; gap: 12px; align-items: center; padding: 12px; border-radius: 14px; border: 1px solid var(--line); background: linear-gradient(135deg, var(--soft), rgba(101,88,245,.06));
+    }
+    .qr-box img { width: 100%; border-radius: 10px; background: white; padding: 8px; border: 1px solid var(--line); }
+    .tiny { color: var(--muted); font-size: .82rem; }
+    .quiz-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; margin-top: 12px; }
+    .quiz-grid button { background: #fff; color: var(--ink); border: 1px solid var(--line); }
+    .game-score { font-weight: 800; }
+    .hidden { display: none !important; }
+    .model-3d {
+      perspective: 1200px;
+      width: 100%;
+      height: 290px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(180deg, #fbfbff, #eef6ff);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .model-3d svg {
+      transform-style: preserve-3d;
+      animation: float 4s ease-in-out infinite;
+    }
+    @keyframes float { 0%,100% { transform: rotateX(12deg) rotateY(-12deg) translateY(0); } 50% { transform: rotateX(18deg) rotateY(12deg) translateY(-6px); } }
+    @media (max-width: 920px) { .layout { grid-template-columns: 1fr; } .visuals { grid-template-columns: 1fr; } }
+    @media (max-width: 480px) { .metrics { grid-template-columns: 1fr 1fr; } .metrics .metric:last-child { grid-column: 1 / -1; } .grid2 { grid-template-columns: 1fr; } .qr-box { grid-template-columns: 1fr; text-align: center; } }
+  </style>
+</head>
+<body>
+<div id="app">
+  <header class="hero">
+    <div class="tag">✦ Пішіндер зертханасы</div>
+    <h1>Интерактивті геометрия</h1>
+    <p>Пішіндерді құрастыр, жаймаларын зертте, 3D көрінісін қара, аудан мен көлемді есепте. Телефон мен компьютерге бейімделген.</p>
+  </header>
+
+  <div class="layout">
+    <aside class="panel">
+      <div class="notice" style="margin-top:0;margin-bottom:18px">
+        <h2>🧮 Аудан калькуляторы</h2>
+        <label for="projectArea">Толық бетінің ауданы S (см²)</label>
+        <input id="projectArea" type="number" min="0.01" step="any" value="600" inputmode="decimal">
+        <p class="tiny">Біздің жобада 600 см² таңдалды. Өзіңізге қажет оң ауданды енгізіңіз: пішіннің өлшемдері мен көлемі автоматты өзгереді.</p>
+        <button id="resetArea" class="secondary">Жобаға оралу: 600 см²</button>
+        <div id="areaExplanation" class="tiny" style="margin-top:10px" aria-live="polite"></div>
+      </div>
+      <h2>🧩 Пішінді таңда</h2>
+      <label for="shape">Геометриялық дене</label>
+      <select id="shape">
+        <option value="box">Параллелепипед</option>
+        <option value="cube">Текше</option>
+        <option value="tri">Үшбұрышты призма</option>
+        <option value="hex">Алтыбұрышты призма</option>
+        <option value="cyl">Цилиндр</option>
+      </select>
+
+      <div class="segmented">
+        <button id="forward" class="active">Өлшемдер → нәтиже</button>
+        <button id="reverse" class="secondary">Аудан → өлшемдер</button>
+      </div>
+
+      <div id="forwardFields">
+        <div id="boxFields" class="grid2">
+          <div><label for="a">Ұзындығы a (см)</label><input id="a" type="number" min="0.1" step="0.1" value="6"></div>
+          <div><label for="b">Ені b (см)</label><input id="b" type="number" min="0.1" step="0.1" value="10"></div>
+          <div><label for="c">Биіктігі h (см)</label><input id="c" type="number" min="0.1" step="0.1" value="15"></div>
+        </div>
+
+        <div id="cubeFields" class="hidden">
+          <label for="s">Текшенің қыры s (см)</label>
+          <input id="s" type="number" min="0.1" step="0.1" value="10">
+        </div>
+
+        <div id="prismFields" class="hidden">
+          <label for="side">Табан қабырғасы s (см)</label>
+          <input id="side" type="number" min="0.1" step="0.1" value="5">
+          <label for="height">Биіктігі h (см)</label>
+          <input id="height" type="number" min="0.1" step="0.1" value="12">
+        </div>
+
+        <div id="cylFields" class="hidden">
+          <label for="r">Радиусы r (см)</label>
+          <input id="r" type="number" min="0.1" step="0.1" value="5">
+          <label for="ch">Биіктігі h (см)</label>
+          <input id="ch" type="number" min="0.1" step="0.1" value="14.1">
+        </div>
+      </div>
+
+      <div id="reverseFields" class="hidden">
+        <label for="targetSA">Толық бетінің ауданы S (см²)</label>
+        <input id="targetSA" type="number" min="1" step="1" value="600">
+        <div class="tiny">Бірдей ауданға әртүрлі өлшемдер сәйкес келуі мүмкін. Сондықтан төменде бір немесе екі өлшемді белгілейміз.</div>
+
+        <div id="reverseBox" class="grid2"><div><label for="ra">Ұзындығы a (см)</label><input id="ra" type="number" min="0.1" step="0.1" value="6"></div><div><label for="rb">Ені b (см)</label><input id="rb" type="number" min="0.1" step="0.1" value="10"></div></div>
+        <div id="reversePrism" class="hidden"><label for="rs">Табан қабырғасы s (см)</label><input id="rs" type="number" min="0.1" step="0.1" value="5"></div>
+        <div id="reverseCyl" class="hidden"><label for="rr">Радиусы r (см)</label><input id="rr" type="number" min="0.1" step="0.1" value="5"></div>
+        <div id="reverseCubeInfo" class="notice hidden">Текшенің барлық қырлары тең. Сондықтан толық бетінің ауданы арқылы қырын табуға болады.</div>
+      </div>
+
+      <div id="note" class="notice">Мысал: өлшемдері 6 × 10 × 15 см параллелепипедтің толық бетінің ауданы 600 см², көлемі 900 см³.</div>
+
+      <div class="qr-box">
+        <img id="siteQR" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=https%3A%2F%2Faida-hub-hush.github.io%2Flaboratoriya-figur%2F" alt="QR коды" />
+        <div>
+          <div style="font-weight:800; margin-bottom: 4px;">📱 QR коды</div>
+          <div class="tiny"><span id="qrStatus">QR жарияланған сайттың мекенжайына бағытталуы керек.</span><label for="publicURL">Сайттың HTTPS сілтемесі</label><input id="publicURL" type="url" placeholder="https://...github.io/.../"><button id="setQR" style="margin-top:8px">QR жаңарту</button><a id="siteLink" target="_blank" rel="noopener" style="display:block;margin-top:8px">Сілтемені тексеру</a></div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="panel">
+      <div class="sectionhead" style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+        <h2 id="shapeTitle">Параллелепипед</h2>
+        <span style="display:inline-block; background:var(--soft); border:1px solid var(--line); border-radius:999px; padding:7px 10px; font-size:.78rem; font-weight:700;" id="modeLabel">Өлшемдер арқылы есептеу</span>
+      </div>
+
+      <div class="metrics">
+        <div class="metric"><span>Толық бетінің ауданы</span><strong id="sa">600 см²</strong></div>
+        <div class="metric"><span>Көлем</span><strong id="vol">900 см³</strong></div>
+        <div class="metric"><span>Өлшемдер</span><strong id="dims">6 × 10 × 15</strong></div>
+      </div>
+
+      <div class="visuals">
+        <div class="visualbox">
+          <h3>🔷 3D көрінісі</h3>
+          <div class="model-3d" id="model"></div>
+          <div class="tiny" style="margin-top:8px;">Пішіннің қозғалыстағы 3D көрінісі.</div>
+        </div>
+        <div class="visualbox">
+          <h3>✂️ Макет (жайма)</h3>
+          <div id="net"></div>
+          <div class="tiny" id="netCaption" style="margin-top:8px;">Пішіннің барлық жақтарын көрсетеді.</div>
+        </div>
+      </div>
+
+      <div class="formula" id="formula">S = 2(ab + ah + bh); V = abh</div>
+      <div class="notice" id="interpret"><strong>Тапсырма:</strong> толық бетінің ауданы бірдей пішіндердің көлемдерін салыстыр.</div>
+
+      <div class="game-box" id="gameBox">
+        <div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:center;">
+          <h3 style="margin:0;">🎮 Шағын ойын</h3>
+          <div class="game-score">Ұпай: <span id="score">0</span></div>
+        </div>
+        <div id="quizQuestion" style="margin-top:8px; font-weight:700;">Ойынды бастау үшін батырманы басыңыз.</div>
+        <div class="quiz-grid" id="quizOptions"></div><div id="quizSolution" class="notice hidden" aria-live="polite"></div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;">
+          <button id="startGame">Ойынды бастау</button>
+          <button id="nextQuiz" class="secondary">Келесі сұрақ</button>
+        </div>
+      </div>
+    </main>
+  </div>
+  <footer class="tiny" style="margin-top:20px;">Өлшем бірліктері: ұзындық — см, аудан — см², көлем — см³. Пішіндер мен жаймалар сұлба түрінде көрсетілген.</footer>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+let mode = 'forward';
+const names = {
+  box: 'Параллелепипед',
+  cube: 'Текше',
+  tri: 'Үшбұрышты призма',
+  hex: 'Алтыбұрышты призма',
+  cyl: 'Цилиндр'
+};
+
+function val(id) { const x = Number($(id).value); return Number.isFinite(x) && x > 0 ? x : NaN; }
+function fmt(x) { if (!Number.isFinite(x)) return '—'; return x.toLocaleString('kk-KZ', { maximumFractionDigits: 2, minimumFractionDigits: 0 }); }
+function safe(x) { return Number.isFinite(x) && x > 0; }
+
+function svgOpen() {
+  return '<svg viewBox="0 0 360 250" role="img" aria-label="Геометриялық пішін"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9c91ff"/><stop offset="1" stop-color="#40b8f2"/></linearGradient></defs>';
+}
+function poly(points, fill='#dcd8ff') {
+  return `<polygon points="${points}" fill="${fill}" stroke="#6258df" stroke-width="2" stroke-linejoin="round"/>`;
+}
+
+function modelSVG(k, d) {
+  if (k === 'cube') d = { ...d, a:d.s, b:d.s, h:d.s };
+  let z = svgOpen();
+  if (k === 'box' || k === 'cube') {
+    let ox = 60, oy = 175, w = 145, h = 100, dx = 65, dy = -42;
+    z += poly(`${ox},${oy-h} ${ox+dx},${oy-h+dy} ${ox+dx+w},${oy-h+dy} ${ox+w},${oy-h}`, '#9eafff');
+    z += poly(`${ox+w},${oy-h} ${ox+w+dx},${oy-h+dy} ${ox+w+dx},${oy+dy} ${ox+w},${oy}`, '#6d80df');
+    z += poly(`${ox},${oy-h} ${ox+w},${oy-h} ${ox+w},${oy} ${ox},${oy}`, 'url(#g)');
+    z += `<g class="svgtext"><text x="95" y="195" font-size="12" fill="currentColor">a=${fmt(d.a)}</text><text x="258" y="116" font-size="12" fill="currentColor">b=${fmt(d.b)}</text><text x="28" y="132" font-size="12" fill="currentColor">h=${fmt(d.h)}</text></g>`;
+  } else if (k === 'cyl') {
+    z += `<ellipse cx="180" cy="58" rx="76" ry="27" fill="#c8c2ff" stroke="#6258df" stroke-width="2"/>`;
+    z += `<path d="M104 58V177C104 212 256 212 256 177V58" fill="url(#g)" stroke="#6258df" stroke-width="2"/>`;
+    z += `<ellipse cx="180" cy="177" rx="76" ry="27" fill="#78c9f5" stroke="#6258df" stroke-width="2"/>`;
+    z += `<path d="M104 177C104 142 256 142 256 177" fill="none" stroke="#6258df" stroke-dasharray="5 4"/>`;
+    z += `<g class="svgtext"><text x="185" y="47" font-size="12" fill="currentColor">r=${fmt(d.r)}</text><text x="262" y="130" font-size="12" fill="currentColor">h=${fmt(d.h)}</text></g>`;
+  } else {
+    let n = k === 'hex' ? 6 : 3, R = k === 'hex' ? 52 : 61, cx = 95, cy = 89, pts = [];
+    for (let i = 0; i < n; i++) {
+      let a = -Math.PI / 2 + 2 * Math.PI * i / n;
+      pts.push([cx + R * Math.cos(a), cy + R * Math.sin(a)]);
+    }
+    let dx = 130, dy = 30;
+    for (let i = 0; i < n; i++) {
+      let p = pts[i], q = pts[(i + 1) % n];
+      z += poly(`${p[0]},${p[1]} ${q[0]},${q[1]} ${q[0]+dx},${q[1]+dy} ${p[0]+dx},${p[1]+dy}`, i % 2 ? '#b4aaff' : '#8fd8fa');
+    }
+    z += poly(pts.map(p => p.join(',')).join(' '), '#dcd8ff');
+    z += poly(pts.map(p => `${p[0]+dx},${p[1]+dy}`).join(' '), '#80bff0');
+    z += `<text x="208" y="226" font-size="12" fill="currentColor">h=${fmt(d.h)}</text><text x="20" y="205" font-size="12" fill="currentColor">s=${fmt(d.s)}</text>`;
+  }
+  return z + '</svg>';
+}
+
+function netSVG(k, d) {
+  if (k === 'cube') d = { ...d, a:d.s, b:d.s, h:d.s };
+  let z = svgOpen();
+  if (k === 'box' || k === 'cube') {
+    let A = d.a, B = d.b, H = d.h, scale = Math.min(18, 270 / Math.max(2 * A + 2 * B, 1), 185 / Math.max(H + 2 * A, 1));
+    let a = A * scale, b = B * scale, h = H * scale, ox = (360 - (2 * a + 2 * b)) / 2, oy = 120 - h / 2;
+    z += `<g stroke="#6258df" stroke-width="1.5"><rect x="${ox}" y="${oy}" width="${a}" height="${h}" fill="#9eafff"/><rect x="${ox+a}" y="${oy}" width="${b}" height="${h}" fill="#c8c2ff"/><rect x="${ox+a+b}" y="${oy}" width="${a}" height="${h}" fill="#9eafff"/><rect x="${ox+2*a+b}" y="${oy}" width="${b}" height="${h}" fill="#c8c2ff"/><rect x="${ox+a}" y="${oy-a}" width="${b}" height="${a}" fill="#80d8f0"/><rect x="${ox+a}" y="${oy+h}" width="${b}" height="${a}" fill="#80d8f0"/></g>`;
+  } else if (k === 'cyl') {
+    let sc = Math.min(18, 245 / (2 * Math.PI * d.r), 80 / d.r), R = d.r * sc, H = d.h * sc, W = 2 * Math.PI * R, ox = (360 - W) / 2, oy = 85;
+    z += `<rect x="${ox}" y="${oy}" width="${W}" height="${H}" fill="#9eafff" stroke="#6258df" stroke-width="2"/><circle cx="180" cy="${oy - R - 8}" r="${R}" fill="#c8c2ff" stroke="#6258df" stroke-width="2"/><circle cx="180" cy="${oy + H + R + 8}" r="${R}" fill="#80d8f0" stroke="#6258df" stroke-width="2"/>`;
+  } else {
+    let n = k === 'hex' ? 6 : 3, side = d.s, sc = Math.min(18, 270 / (n * side), 100 / (side * 2)), w = side * sc, H = d.h * sc, ox = (360 - n * w) / 2, oy = 92;
+    z += '<g stroke="#6258df" stroke-width="1.5">';
+    for (let i = 0; i < n; i++) z += `<rect x="${ox + i * w}" y="${oy}" width="${w}" height="${H}" fill="${i % 2 ? '#c8c2ff' : '#9eafff'}"/>`;
+    z += '</g>';
+    let R = (k === 'hex' ? side : side / Math.sqrt(3)) * sc, cx = 180, cy = oy + H + R + 7, pts = [];
+    for (let i = 0; i < n; i++) { let a = -Math.PI / 2 + 2 * Math.PI * i / n; pts.push(`${cx + R * Math.cos(a)},${cy + R * Math.sin(a)}`); }
+    z += poly(pts.join(' '), '#80d8f0');
+    let cy2 = oy - R - 7, pts2 = [];
+    for (let i = 0; i < n; i++) { let a = -Math.PI / 2 + 2 * Math.PI * i / n; pts2.push(`${cx + R * Math.cos(a)},${cy2 + R * Math.sin(a)}`); }
+    z += poly(pts2.join(' '), '#dcd8ff');
+  }
+  return z + '</svg>';
+}
+
+function calcValues(shape, d) {
+  let S = NaN, V = NaN;
+  if (shape === 'box') {
+    S = 2 * (d.a * d.b + d.a * d.h + d.b * d.h);
+    V = d.a * d.b * d.h;
+  } else if (shape === 'cube') {
+    S = 6 * d.s * d.s;
+    V = d.s ** 3;
+  } else if (shape === 'tri') {
+    let B = Math.sqrt(3) * d.s * d.s / 4;
+    S = 2 * B + 3 * d.s * d.h;
+    V = B * d.h;
+  } else if (shape === 'hex') {
+    let B = 3 * Math.sqrt(3) * d.s * d.s / 2;
+    S = 2 * B + 6 * d.s * d.h;
+    V = B * d.h;
+  } else if (shape === 'cyl') {
+    S = 2 * Math.PI * d.r * d.r + 2 * Math.PI * d.r * d.h;
+    V = Math.PI * d.r * d.r * d.h;
+  }
+  return { S, V };
+}
+
+function updateUI() {
+  const shape = $('shape').value;
+  const d = getCurrentDimensions(shape);
+  const calc = calcValues(shape, d);
+  $('shapeTitle').textContent = names[shape];
+  $('sa').textContent = Number.isFinite(calc.S) ? fmt(calc.S) + ' см²' : '—';
+  $('vol').textContent = Number.isFinite(calc.V) ? fmt(calc.V) + ' см³' : '—';
+  $('dims').textContent = formatDims(shape, d);
+  $('formula').textContent = formulaText(shape, d, calc);
+  $('modeLabel').textContent = mode === 'forward' ? 'Өлшемдер арқылы есептеу' : 'Аудан арқылы есептеу';
+
+  const model = modelSVG(shape, d);
+  $('model').innerHTML = Number.isFinite(calc.S) && Number.isFinite(calc.V) ? model : '<div class="tiny" style="padding:12px;">Дұрыс өлшемдерді енгізіңіз.</div>';
+  $('net').innerHTML = Number.isFinite(calc.S) ? netSVG(shape, d) : '<div class="tiny">Жайма осы жерде көрсетіледі.</div>';
+
+  if (shape === 'hex') $('netCaption').textContent = '6 тіктөртбұрыш және 2 дұрыс алтыбұрыш.';
+  else if (shape === 'tri') $('netCaption').textContent = '3 тіктөртбұрыш және 2 теңқабырғалы үшбұрыш.';
+  else if (shape === 'cyl') $('netCaption').textContent = '1 тіктөртбұрыш және 2 дөңгелек.';
+  else if (shape === 'cube') $('netCaption').textContent = '6 бірдей шаршы.';
+  else $('netCaption').textContent = '6 тіктөртбұрыш.';
+
+  $('interpret').innerHTML = Number.isFinite(calc.S) ? `<strong>Тапсырма:</strong> толық бетінің ауданы ${fmt(calc.S)} см², көлемі ${fmt(calc.V)} см³ болатын пішіннің нәтижесін басқа пішіндермен салыстыр.` : '<strong>Тапсырма:</strong> өлшемдерді тексеріп, қайта есепте.';
+}
+
+function getCurrentDimensions(shape) {
+  if (shape === 'box') return { a: val('a'), b: val('b'), h: val('c') };
+  if (shape === 'cube') return { s: val('s') };
+  if (shape === 'tri' || shape === 'hex') return { s: val('side'), h: val('height') };
+  if (shape === 'cyl') return { r: val('r'), h: val('ch') };
+  return {};
+}
+
+function formatDims(shape, d) {
+  if (shape === 'box') return `${fmt(d.a)} × ${fmt(d.b)} × ${fmt(d.h)}`;
+  if (shape === 'cube') return `${fmt(d.s)} × ${fmt(d.s)} × ${fmt(d.s)}`;
+  if (shape === 'cyl') return `r=${fmt(d.r)}; h=${fmt(d.h)}`;
+  return `s=${fmt(d.s)}; h=${fmt(d.h)}`;
+}
+
+function formulaText(shape, d, calc) {
+  if (shape === 'box') return `S = 2(ab + ah + bh) = ${fmt(calc.S)} см²; V = abh = ${fmt(calc.V)} см³.`;
+  if (shape === 'cube') return `S = 6s² = ${fmt(calc.S)} см²; V = s³ = ${fmt(calc.V)} см³.`;
+  if (shape === 'tri') return `S = 2B + Ph = ${fmt(calc.S)} см²; V = Bh = ${fmt(calc.V)} см³; B = √3 s² / 4.`;
+  if (shape === 'hex') return `S = 2B + Ph = ${fmt(calc.S)} см²; V = Bh = ${fmt(calc.V)} см³; B = 3√3 s² / 2.`;
+  if (shape === 'cyl') return `S = 2πr² + 2πrh = ${fmt(calc.S)} см²; V = πr²h = ${fmt(calc.V)} см³.`;
+  return '—';
+}
+
+function refreshFields() {
+  const shape = $('shape').value;
+  const box = $('boxFields');
+  const cube = $('cubeFields');
+  const prism = $('prismFields');
+  const cyl = $('cylFields');
+  const forward = $('forwardFields');
+  const reverse = $('reverseFields');
+  const reverseBox = $('reverseBox');
+  const reversePrism = $('reversePrism');
+  const reverseCyl = $('reverseCyl');
+  const reverseCube = $('reverseCubeInfo');
+
+  box.classList.add('hidden');
+  cube.classList.add('hidden');
+  prism.classList.add('hidden');
+  cyl.classList.add('hidden');
+  reverseBox.classList.add('hidden');
+  reversePrism.classList.add('hidden');
+  reverseCyl.classList.add('hidden');
+  reverseCube.classList.add('hidden');
+
+  if (mode === 'forward') {
+    if (shape === 'box') box.classList.remove('hidden');
+    if (shape === 'cube') cube.classList.remove('hidden');
+    if (shape === 'tri' || shape === 'hex') prism.classList.remove('hidden');
+    if (shape === 'cyl') cyl.classList.remove('hidden');
+  }
+
+  forward.classList.toggle('hidden', mode !== 'forward');
+  reverse.classList.toggle('hidden', mode !== 'reverse');
+
+  if (mode === 'reverse') {
+    if (shape === 'box') reverseBox.classList.remove('hidden');
+    if (shape === 'tri' || shape === 'hex') reversePrism.classList.remove('hidden');
+    if (shape === 'cyl') reverseCyl.classList.remove('hidden');
+    if (shape === 'cube') reverseCube.classList.remove('hidden');
+  }
+
+  $('forward').classList.toggle('active', mode === 'forward');
+  $('reverse').classList.toggle('active', mode === 'reverse');
+}
+
+function reverseCalc() {
+  const shape = $('shape').value;
+  let d = {};
+  let S = Number($('targetSA').value);
+  let V = NaN;
+
+  if (shape === 'box') {
+    const a = val('ra'), b = val('rb');
+    const h = (S / 2 - a * b) / (a + b);
+    d = { a, b, h };
+    V = a * b * h;
+  } else if (shape === 'cube') {
+    const s = Math.sqrt(S / 6);
+    d = { s };
+    V = s ** 3;
+  } else if (shape === 'tri' || shape === 'hex') {
+    const s = val('rs');
+    const B = shape === 'tri' ? Math.sqrt(3) * s * s / 4 : 3 * Math.sqrt(3) * s * s / 2;
+    const P = shape === 'tri' ? 3 * s : 6 * s;
+    const h = (S - 2 * B) / P;
+    d = { s, h };
+    V = B * h;
+  } else if (shape === 'cyl') {
+    const r = val('rr');
+    const h = (S - 2 * Math.PI * r * r) / (2 * Math.PI * r);
+    d = { r, h };
+    V = Math.PI * r * r * h;
+  }
+
+  if (S > 0 && Number.isFinite(V) && V > 0 && Object.values(d).every(safe)) {
+    const calc = { S, V };
+    $('sa').textContent = fmt(S) + ' см²';
+    $('vol').textContent = fmt(V) + ' см³';
+    $('dims').textContent = formatDims(shape, d);
+    $('formula').textContent = shape === 'box' ? `h = (S/2 - ab)/(a+b) = ${fmt(d.h)} см; V = abh = ${fmt(V)} см³.` : shape === 'cube' ? `s = √(S/6) = ${fmt(d.s)} см; V = s³ = ${fmt(V)} см³.` : shape === 'tri' ? `h = (S - 2B)/P = ${fmt(d.h)} см; V = Bh = ${fmt(V)} см³.` : shape === 'hex' ? `h = (S - 2B)/P = ${fmt(d.h)} см; V = Bh = ${fmt(V)} см³.` : `h = (S - 2πr²)/(2πr) = ${fmt(d.h)} см; V = πr²h = ${fmt(V)} см³.`;
+    $('model').innerHTML = modelSVG(shape, d);
+    $('net').innerHTML = netSVG(shape, d);
+  } else {
+    ['sa','vol','dims'].forEach(id => $(id).textContent='—');
+    $('model').textContent='Өлшемдер берілген ауданға сәйкес келмейді.';
+    $('net').textContent='Оң өлшемдерді енгізіңіз.';
+  }
+}
+
+$('shape').addEventListener('change', () => { updateUI(); refreshFields(); });
+$('forward').addEventListener('click', () => { mode = 'forward'; refreshFields(); updateUI(); });
+$('reverse').addEventListener('click', () => { mode = 'reverse'; refreshFields(); reverseCalc(); });
+
+['a','b','c','s','side','height','r','ch','targetSA','ra','rb','rs','rr'].forEach(id => {
+  $(id)?.addEventListener('input', () => {
+    if (mode === 'forward') updateUI();
+    else reverseCalc();
+  });
+});
+
+function generateQuiz() {
+  const shapes = ['box','cube','tri','hex','cyl'];
+  const shape = shapes[Math.floor(Math.random() * shapes.length)];
+  let d = {};
+  if (shape === 'box') {
+    d = { a: 3 + Math.random() * 9, b: 3 + Math.random() * 9, h: 4 + Math.random() * 14 };
+  } else if (shape === 'cube') {
+    d = { s: 3 + Math.random() * 12 };
+  } else if (shape === 'tri' || shape === 'hex') {
+    d = { s: 3 + Math.random() * 7, h: 4 + Math.random() * 15 };
+  } else if (shape === 'cyl') {
+    d = { r: 2 + Math.random() * 7, h: 4 + Math.random() * 16 };
+  }
+
+  Object.keys(d).forEach(key => d[key] = Math.round(d[key]));
+  const values = calcValues(shape, d);
+  const correct = Math.round(values.V);
+  const answers = new Set([correct]);
+  while (answers.size < 4) {
+    const delta = Math.round((Math.random() * 40) + 10);
+    const offset = Math.random() > 0.5 ? delta : -delta;
+    answers.add(Math.max(1, correct + offset));
+  }
+  const options = [...answers].sort(() => Math.random() - 0.5);
+
+  $('quizQuestion').textContent = `Пішін: ${names[shape]}. Өлшемдері: ${formatDims(shape, d)} см. Көлемі қанша? Жауапты бүтін санға дейін дөңгелекте.`;
+  $('quizOptions').innerHTML = '';
+  $('quizSolution').classList.add('hidden');
+  $('quizSolution').textContent = '';
+  options.forEach(option => {
+    const btn = document.createElement('button');
+    btn.textContent = `${fmt(option)} см³`;
+    btn.addEventListener('click', () => {
+      if (option === correct) {
+        let score = Number($('score').textContent || 0);
+        score += 1;
+        $('score').textContent = score;
+        btn.style.background = '#2bc56d'; btn.style.color = '#fff';
+      } else {
+        btn.style.background = '#e75b7a'; btn.style.color = '#fff';
+      }
+      $('quizSolution').classList.remove('hidden');
+      $('quizSolution').innerHTML = `<strong>${option === correct ? 'Дұрыс жауап!' : 'Дұрыс жауап: ' + fmt(correct) + ' см³.'}</strong><br>` + quizWorking(shape, d, values.V);
+      const all = [...$('quizOptions').children];
+      all.forEach(child => child.disabled = true);
+    });
+    $('quizOptions').appendChild(btn);
+  });
+
+
+}
+
+$('startGame').addEventListener('click', () => {
+  $('score').textContent = '0';
+  generateQuiz();
+});
+$('nextQuiz').addEventListener('click', () => generateQuiz());
+
+updateUI();
+refreshFields();
+
+const projectDimensions = {
+ box:{a:6,b:10,h:15},cube:{s:10},
+ cyl:{r:Math.sqrt(100/Math.PI),h:2*Math.sqrt(100/Math.PI)},
+ tri:{s:Math.sqrt(400/Math.sqrt(3)),h:Math.sqrt(400/Math.sqrt(3))/Math.sqrt(3)},
+ hex:{s:Math.sqrt(400/(6*Math.sqrt(3))),h:Math.sqrt(3)*Math.sqrt(400/(6*Math.sqrt(3)))}
+};
+function dimensionsForArea(k,S){
+ const scale=Math.sqrt(S/600);
+ return Object.fromEntries(Object.entries(projectDimensions[k]).map(([key,value])=>[key,value*scale]));
+}
+function loadProjectShape(){
+ const S=val('projectArea'),k=$('shape').value;
+ if(!safe(S)){
+   $('areaExplanation').textContent='Нөлден үлкен аудан енгізіңіз.';
+   ['sa','vol','dims'].forEach(id=>$(id).textContent='—');
+   $('model').textContent='Аудан енгізілгенде пішін көрсетіледі.';$('net').textContent='Жайма аудан енгізілгенде көрсетіледі.';return;
+ }
+ const d=dimensionsForArea(k,S);
+ const fields=k==='box'?{a:d.a,b:d.b,c:d.h}:k==='cube'?{s:d.s}:k==='cyl'?{r:d.r,ch:d.h}:{side:d.s,height:d.h};
+ Object.entries(fields).forEach(([key,value])=>$(key).value=value);
+ if(k==='box'){$('ra').value=d.a;$('rb').value=d.b;}
+ if(k==='tri'||k==='hex')$('rs').value=d.s;
+ if(k==='cyl')$('rr').value=d.r;
+ $('targetSA').value=S;
+ refreshFields();updateUI();if(mode==='reverse')reverseCalc();
+ $('note').textContent='Жобаның бастапқы ауданы: 600 см². Қазір таңдалған аудан: '+fmt(S)+' см².';
+ const conditions={box:'Ұзындық, ен және биіктік қатынасы 6 : 10 : 15 сақталады.',cube:'Текшенің барлық қырлары тең: s = √(S/6).',cyl:'Цилиндрдің биіктігі диаметріне тең: h = 2r; r = √(S/(6π)).',tri:'Табаны теңқабырғалы үшбұрыш: h = s/√3.',hex:'Табаны дұрыс алтыбұрыш: h = √3·s.'};
+ $('areaExplanation').textContent=conditions[k]+' Бір ауданға бірнеше өлшем сәйкес келеді; калькулятор осы шартты қолданады. Масштаб коэффициенті: √('+fmt(S)+'/600) = '+fmt(Math.sqrt(S/600))+'.';
+}
+$('projectArea').addEventListener('input',loadProjectShape);
+$('resetArea').addEventListener('click',()=>{$('projectArea').value=600;loadProjectShape();});
+function quizWorking(k,d,V){
+ let steps;
+ if(k==='box')steps=`Формула: V = a·b·h.<br>Есептеу: V = ${fmt(d.a)} · ${fmt(d.b)} · ${fmt(d.h)} = ${fmt(V)} см³.`;
+ else if(k==='cube')steps=`Формула: V = s³.<br>Есептеу: V = ${fmt(d.s)}³ = ${fmt(d.s)} · ${fmt(d.s)} · ${fmt(d.s)} = ${fmt(V)} см³.`;
+ else if(k==='cyl')steps=`Формула: V = πr²h.<br>Есептеу: V = π · ${fmt(d.r)}² · ${fmt(d.h)} ≈ ${fmt(V)} см³.`;
+ else {
+  const B=(k==='tri'?Math.sqrt(3)/4:3*Math.sqrt(3)/2)*d.s*d.s;
+  const base=k==='tri'?`√3 · ${fmt(d.s)}² / 4`:`3√3 · ${fmt(d.s)}² / 2`;
+  steps=`Табан ауданы: B = ${k==='tri'?'√3·s²/4':'3√3·s²/2'}.<br>B = ${base} ≈ ${fmt(B)} см².<br>Көлем формуласы: V = B·h.<br>V ≈ ${fmt(B)} · ${fmt(d.h)} ≈ ${fmt(V)} см³.`;
+ }
+ return steps+`<br>Бүтін санға дейін дөңгелектейміз: <strong>${fmt(Math.round(V))} см³</strong>.`;
+}
+$('shape').addEventListener('change',loadProjectShape);
+
+function configureQR(){
+ let url;try{url=new URL($('publicURL').value);if(url.protocol!=='https:')throw Error();}
+ catch(e){$('qrStatus').textContent='Жарияланған сайттың HTTPS сілтемесін енгізіңіз.';$('siteQR').classList.add('hidden');$('siteLink').removeAttribute('href');return;}
+ $('siteQR').src='https://api.qrserver.com/v1/create-qr-code/?size=180x180&data='+encodeURIComponent(url.href);
+ $('siteQR').classList.remove('hidden');$('siteLink').href=url.href;
+ $('qrStatus').textContent='QR осы сілтемеге бағытталған. Алдымен «Сілтемені тексеру» арқылы сайттың ашылатынын тексеріңіз.';
+}
+$('setQR').addEventListener('click',configureQR);
+if(location.protocol==='https:'){$('publicURL').value=location.href;configureQR();}
+else{$('siteQR').classList.add('hidden');$('qrStatus').textContent='Файл компьютерде ашылды. Телефоннан QR арқылы ашу үшін алдымен сайтты GitHub Pages-ке жариялаңыз.';}
+loadProjectShape();
+
+</script>
+</body>
+</html>
